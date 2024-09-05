@@ -4,7 +4,7 @@ import com.herupray.core.data.source.remote.network.ApiResponse
 import kotlinx.coroutines.flow.*
 
 abstract class NetworkBoundResource<ResultType, RequestType> {
-    private val result: Flow<Resource<ResultType>> = flow {
+        private val result: Flow<Resource<ResultType>> = flow {
         emit(Resource.Loading())
         when(val apiResponse = createCall().first()){
             is ApiResponse.Success ->{

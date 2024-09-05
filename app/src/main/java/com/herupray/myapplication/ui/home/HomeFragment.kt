@@ -16,6 +16,7 @@ import com.herupray.myapplication.R
 import com.herupray.myapplication.databinding.FragmentHomeBinding
 import com.herupray.myapplication.ui.detail.DetailFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.ref.WeakReference
 
 @AndroidEntryPoint
 class   HomeFragment : Fragment() {
@@ -23,7 +24,7 @@ class   HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var movieAdapter: MovieAdapter
+    private var movieAdapter: WeakReference<MovieAdapter>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,16 +48,16 @@ class   HomeFragment : Fragment() {
     }
 
     private fun setupAdapter() {
-        movieAdapter = MovieAdapter {
+        movieAdapter = WeakReference(MovieAdapter {
             findNavController().navigate(
                 R.id.action_homeFragment_to_detailFragment,
                 Bundle().apply { putParcelable(DetailFragment.MOVIE, it) })
-        }
+        })
         binding.rvMovie.apply {
             layoutManager =
                 GridLayoutManager(requireContext(),2)
             setHasFixedSize(true)
-            adapter = movieAdapter
+            adapter = movieAdapter?.get()
         }
     }
 
@@ -75,7 +76,7 @@ class   HomeFragment : Fragment() {
                         rvMovie.visibility = View.VISIBLE
                         pb.visibility = View.GONE
                     }
-                    movieAdapter.differ.submitList(it.data)
+                    movieAdapter?.get()?.differ?.submitList(it.data)
                 }
 
                 is Resource.Error -> {
